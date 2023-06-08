@@ -1,0 +1,15 @@
+[Unit]
+Description=Apache ZooKeeper server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/zookeeper
+EnvironmentFile=/etc/profile.d/zookeeper.sh
+ExecStart=/opt/zookeeper/bin/zkServer.sh start-foreground
+User=zookeeper
+Group=zookeeper
+
+[Install]
+WantedBy=multi-user.target
