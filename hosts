@@ -1,0 +1,4 @@
+[zookeeper_nodes]
+zookeeper1 ansible_host=zookeeper1 ansible_ssh_user=root
+zookeeper2 ansible_host=zookeeper2 ansible_ssh_user=root
+zookeeper3 ansible_host=zookeeper3 ansible_ssh_user=root
