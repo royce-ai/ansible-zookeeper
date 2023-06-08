@@ -1,0 +1,75 @@
+---
+- name: Install ZooKeeper
+  hosts: zookeeper_nodes
+  become: yes
+  gather_facts: yes
+  tasks:
+
+  - name: Create ZooKeeper group
+    group:
+      name: zookeeper
+      state: present
+
+  - name: Create ZooKeeper user
+    user:
+      name: zookeeper
+      shell: "/usr/sbin/nologin"
+      group: zookeeper
+      system: yes
+      state: present
+
+  - name: Install wget
+    yum:
+      name: wget
+      state: present
+
+  - name: Download ZooKeeper
+    get_url:
+      url: "https://mirrors.tuna.tsinghua.edu.cn/apache/zookeeper/zookeeper-3.6.4/apache-zookeeper-3.6.4-bin.tar.gz"
+      dest: "/tmp/zookeeper-3.6.4.tar.gz"
+      mode: 0644
+
+  - name: Extract ZooKeeper
+    unarchive:
+      src: "/tmp/zookeeper-3.6.4.tar.gz"
+      dest: "/opt"
+      remote_src: yes
+
+  - name: Rename ZooKeeper folder
+    command: mv /opt/apache-zookeeper-3.6.4-bin /opt/zookeeper creates=/opt/zookeeper
+
+  - name: Configure ZooKeeper environment
+    template:
+      src: /home/hadoop/ansible-lists/templates/zookeeper_env.j2
+      dest: /etc/profile.d/zookeeper.sh
+      mode: 0644
+
+  - name: Create ZooKeeper data directory
+    file:
+      path: /var/lib/zookeeper/data
+      state: directory
+      mode: 0755
+      owner: zookeeper
+      group: zookeeper
+
+  - name: Set myid
+    template:
+      src: /home/hadoop/ansible-lists/templates/myid.j2
+      dest: "/var/lib/zookeeper/data/myid"
+      mode: 0644
+
+  - name: Copy ZooKeeper configuration
+    template:
+      src: /home/hadoop/ansible-lists/templates/zookeeper.cfg.j2
+      dest: /opt/zookeeper/conf/zookeeper.cfg
+      mode: 0644
+
+  - name: Create ZooKeeper systemd service
+    template:
+      src: /home/hadoop/ansible-lists/templates/zookeeper.service.j2
+      dest: /etc/systemd/system/zookeeper.service
+      mode: 0644
+
+  - name: Reload systemd and enable ZooKeeper
+    systemd: daemon_reload=yes enabled=yes state=started name=zookeeper
+...
