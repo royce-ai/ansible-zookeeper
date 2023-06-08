@@ -1,0 +1,8 @@
+tickTime=2000
+dataDir=/var/lib/zookeeper/data
+clientPort=2181
+initLimit=5
+syncLimit=2
+{% for host in groups['zookeeper_nodes'] %}
+server.{{loop.index}}={{host}}:2888:3888
+{% endfor %}
